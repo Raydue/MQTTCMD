@@ -5,12 +5,13 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
-// 1/25今天嘗試使用第二視窗顯示內容未果
+// 2/2 目前可以接到多個連線，但Subscribe的時候只會Sub最後一個連線
 namespace MQTTCMD
 {
     public class Program
     {
         static List<string> TopicsHome = new List<string>();
+        static List<string> PortWay = new List<string>();
         public static MqttClient client; 
         static string clientid;
        
@@ -20,13 +21,30 @@ namespace MQTTCMD
 
       public static void Main(string[] args)
         {
+            string bo;
+            do
+            {
+                Console.WriteLine("輸入想連線的Broker.");
+                bo = Console.ReadLine();
+               
+                if (string.IsNullOrEmpty(bo))
+                {
+                    break;
+                }
+                PortWay.Add(bo);
+            }
+            while (true);
            
                 try
                 {
-                    client = new MqttClient("192.168.0.5");
-                    
+                foreach(string a in PortWay)
+                {
+                    client = new MqttClient(a);
                     clientid = Guid.NewGuid().ToString();
-                    client.Connect(clientid);
+                    
+                    client.Connect(clientid);       
+                }
+                   
                 }
                 catch (SystemException)
                 {
@@ -45,7 +63,9 @@ namespace MQTTCMD
             
             foreach(string num in TopicsHome)
             {
+                
                 client.Subscribe(new string[] { num }, new byte[] { 0 });
+                
             }
             
            /* if (args.Length != 0)
