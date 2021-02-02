@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
-// 2/2 目前可以接到多個連線，但Subscribe的時候只會Sub最後一個連線
+// 2/2 目前可以接到多個連線，但Subscribe的時候只會Sub最後一個連線(完成)
 namespace MQTTCMD
 {
     public class Program
@@ -22,6 +22,8 @@ namespace MQTTCMD
       public static void Main(string[] args)
         {
             string bo;
+            
+            
             do
             {
                 Console.WriteLine("輸入想連線的Broker.");
@@ -34,25 +36,7 @@ namespace MQTTCMD
                 PortWay.Add(bo);
             }
             while (true);
-           
-                try
-                {
-                foreach(string a in PortWay)
-                {
-                    client = new MqttClient(a);
-                    clientid = Guid.NewGuid().ToString();
-                    
-                    client.Connect(clientid);       
-                }
-                   
-                }
-                catch (SystemException)
-                {
-                    Console.WriteLine("Connection Failed");
-                }
-            client.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
-           
-            client.ConnectionClosed += close;
+            
             do
             {
                 Console.WriteLine("please write a topic you want to subscribe.");
@@ -60,26 +44,47 @@ namespace MQTTCMD
                 TopicsHome.Add(tmp);
             }
             while (tmp != "end");
-            
-            foreach(string num in TopicsHome)
-            {
-                
-                client.Subscribe(new string[] { num }, new byte[] { 0 });
-                
-            }
-            
-           /* if (args.Length != 0)
-            {
-                if (args[0] == "1" )
-                {   
-                    while(client.IsConnected)
-                    secondexecution(carrier);
+
+            try
+                {
+                foreach(string a in PortWay)
+                {
+                    client = new MqttClient(a);
+                    clientid = Guid.NewGuid().ToString();
+                    
+                    client.Connect(clientid);
+                    client.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
+                    client.ConnectionClosed += close;
+                    foreach (string num in TopicsHome)
+                    {
+
+                        client.Subscribe(new string[] { num }, new byte[] { 0 });
+
+                    }
                 }
-            }
-            else
-            {
-                firstexecution();
-            }*/
+                   
+                }
+                catch (SystemException)
+                {
+                    Console.WriteLine("Connection Failed");
+                }
+
+            
+           
+
+
+            /* if (args.Length != 0)
+             {
+                 if (args[0] == "1" )
+                 {   
+                     while(client.IsConnected)
+                     secondexecution(carrier);
+                 }
+             }
+             else
+             {
+                 firstexecution();
+             }*/
         }
         /*private static void firstexecution()
         {
